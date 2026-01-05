@@ -92,12 +92,26 @@ class _InspectionDetailScreenState extends State<InspectionDetailScreen> {
             ),
             const SizedBox(height: 10),
             FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (ctx) => AlertDialog(
+                    title: const Text('Confirm delete'),
+                    content: const Text('Are you sure you want to delete this inspection? This action cannot be undone.'),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                      TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Delete')),
+                    ],
+                  ),
+                );
+
+                if (confirm != true) return;
+
                 final db = await DBHelper.database;
-                await db.delete('tbl_inspections',
-                    where: 'id=?', whereArgs: [inspection.id]);
+                await db.delete('tbl_inspections', where: 'id=?', whereArgs: [inspection.id]);
                 if (!context.mounted) return;
-                Navigator.pop(context);
+                Navigator.pop(context, true);
               },
               child: const Text("Delete"),
             ),
